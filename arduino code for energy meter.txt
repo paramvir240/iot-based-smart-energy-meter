@@ -1,0 +1,62 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#define pulse 10 
+int i,Pulse;
+float one_pulse=0.3125;
+LiquidCrystal_I2C lcd(0x3f,16,2);
+void setup()
+{
+lcd.init();   
+pinMode(pulse, INPUT);
+lcd.begin(16,2);
+Serial.begin(9600);
+lcd.setCursor(0,0);
+lcd.backlight();
+lcd.print("Smart E Meter By");
+lcd.setCursor(0,0);
+delay(6000);
+lcd.clear();
+lcd.print("CHITKARA");
+lcd.setCursor(0,1);
+lcd.print("UNIVERSITY");
+delay(6000);
+}
+void loop()
+{
+int Pulse=0;
+float Rupee=0,Unit=0;
+lcd.clear();
+while(1)
+{
+if(digitalRead(pulse))
+ {
+ i++;
+ Pulse++;
+ Unit=one_pulse*i/10; // unit is defined
+ Rupee=Unit*10; // unit rate is defined
+ while(digitalRead(pulse));
+ }
+ if(Pulse==6) // sending Msg after every 3 pulse
+ {
+ delay(100);
+ Serial.println("AT+CMGF=1");
+ delay(1000);
+ Serial.println("AT+CMGS=\"+918054579080\"\r");
+ delay(1000);
+ Serial.println();
+ Serial.println("Unit:");
+ Serial.println(Unit);
+ Serial.println("Rupee:");
+ Serial.println(Rupee);
+ Serial.write(26);
+ Pulse=0;
+ }
+lcd.setCursor(0,0);
+lcd.print("Rupee:");
+lcd.print(Rupee);
+lcd.setCursor(0,1);
+lcd.print("Unit:");
+lcd.print(Unit);
+delay(10);
+}
+}
